@@ -1,50 +1,39 @@
 package tools
 
 import (
+	"encoding/json"
+	"fmt"
 	"go/ast"
+	"go/importer"
 	"go/parser"
 	"go/token"
+	"go/types"
 	"log"
 )
 
-func Search(folder, outputFile, pkgName, structName, ifName, outputTemplate string) {
+func SearchStructsInPackage(name string) {
 	fset := token.NewFileSet()
-
-	pkgs, err := parser.ParseDir(fset, folder, nil, parser.AllErrors)
+	file, err := parser.ParseFile(fset, "./msgpack/v5.go", nil, parser.AllErrors)
 	if err != nil {
-		log.Fatalf("Unable to parse %s folder", folder)
+		log.Fatal(err)
 	}
-	var appPkg *ast.Package
-	for _, pkg := range pkgs {
-		if pkg.Name == pkgName {
-			appPkg = pkg
-			break
+	conf := types.Config{
+		Importer: importer.Default(),
+		Error:    func(err error) {},
+	}
+	pkg, err := conf.Check(".", fset, []*ast.File{file}, nil)
+	names := pkg.Scope().Names()
+	for i := 0; i < len(names); i++ {
+		o := pkg.Scope().Lookup(names[i])
+		t := o.Type().Underlying() //.(*types.Struct)
+		fmt.Printf("name: %v , type: %v \n", names[i], t)
+		if casted, ok := t.(*types.Struct); ok {
+			fmt.Printf("casted type: %v \n", casted)
+
+			j, _ := json.Marshal(casted)
+			fmt.Printf("json: %v\n", j)
 		}
 	}
-	if appPkg == nil {
-		log.Fatalf("Unable to find package %s", pkgName)
-	}
-
-	funcs := make([]string, 0)
-	for _, file := range appPkg.Files {
-		log.Printf("parsing %s\n", fset.File(file.Pos()).Name())
-		if fset.File(file.Pos()).Name() == outputFile {
-			continue
-		}
-		ast.Inspect(file, func(n ast.Node) bool {
-			if fun, ok := n.(*ast.FuncDecl); ok {
-				if fun.Recv != nil {
-					if fun.Name.IsExported() {
-						if fun.Recv != nil && len(fun.Recv.List) == 1 {
-							if r, rok := fun.Recv.List[0].Type.(*ast.StarExpr); rok && r.X.(*ast.Ident).Name == structName {
-								funcs = append(funcs, functionDef(fun, fset))
-							}
-						}
-					}
-				}
-
-			}
-			return true
-		})
-	}
+	//s := pkg.Scope().Names()
+	//internal := s.Type().Underlying().(*types.Struct)
 }

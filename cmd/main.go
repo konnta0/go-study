@@ -1,7 +1,6 @@
 package main
 
 import (
-	"go-study/msgpack"
 	"go-study/tools"
 	"time"
 )
@@ -19,7 +18,8 @@ type rootStruct struct {
 }
 
 func main() {
-	tools.PrintTypesInPackage("time")
+	tools.SearchStructsInPackage("time")
+	//tools.PrintTypesInPackage("time")
 	//tools.PrintStructsInPackage("time")
-	msgpack.V5Test()
+	//msgpack.V5Test()
 }
