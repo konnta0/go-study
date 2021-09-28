@@ -1,4 +1,4 @@
-package main
+package msgpack
 
 import (
 	"bytes"
@@ -23,42 +23,7 @@ type rootStruct struct {
 	S testStruct
 }
 
-func main() {
-	//codecTest()
-	v5Test()
-}
-
-// var _ msgpack.CustomEncoder = (*rootStruct)(nil)
-// var _ msgpack.CustomDecoder = (*rootStruct)(nil)
-
-// func (s *rootStruct) EncodeMsgpack(enc *msgpack.Encoder) error {
-// 	fmt.Printf("encode multi\n")
-// 	return enc.Encode(s.S)
-// }
-
-// func (s *rootStruct) DecodeMsgpack(dec *msgpack.Decoder) error {
-// 	fmt.Printf("decode multi\n")
-// 	return dec.DecodeMulti(&s.S)
-// }
-
-func timeEncodeFunc(e *msgpack.Encoder, v reflect.Value) error {
-	fmt.Printf("encode time\n")
-	// from https://github.com/vmihailenco/msgpack/blob/d72feb0678b758964b52d8aa092e3eb2962f79c7/time.go#L20
-	return e.EncodeTime(v.Interface().(time.Time))
-}
-
-func timeDecoderFunc(d *msgpack.Decoder, v reflect.Value) error {
-	fmt.Printf("decode time\n")
-	// from https://github.com/vmihailenco/msgpack/blob/d72feb0678b758964b52d8aa092e3eb2962f79c7/time.go#L23
-	tm, err := d.DecodeTime()
-	if err != nil {
-		return err
-	}
-	v.Set(reflect.ValueOf(tm))
-	return nil
-}
-
-func v5Test() {
+func V5Test() {
 	fmt.Println("hello world v5")
 	msgpack.Register(time.Time{}, timeEncodeFunc, timeDecoderFunc)
 
@@ -84,6 +49,23 @@ func v5Test() {
 
 	j, _ := json.Marshal(item)
 	fmt.Printf("%v \n", string(j))
+}
+
+func timeEncodeFunc(e *msgpack.Encoder, v reflect.Value) error {
+	fmt.Printf("encode time\n")
+	// from https://github.com/vmihailenco/msgpack/blob/d72feb0678b758964b52d8aa092e3eb2962f79c7/time.go#L20
+	return e.EncodeTime(v.Interface().(time.Time))
+}
+
+func timeDecoderFunc(d *msgpack.Decoder, v reflect.Value) error {
+	fmt.Printf("decode time\n")
+	// from https://github.com/vmihailenco/msgpack/blob/d72feb0678b758964b52d8aa092e3eb2962f79c7/time.go#L23
+	tm, err := d.DecodeTime()
+	if err != nil {
+		return err
+	}
+	v.Set(reflect.ValueOf(tm))
+	return nil
 }
 
 func codecTest() {
