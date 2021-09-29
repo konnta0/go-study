@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-study/msgpack"
+	"go-study/msgp"
 	"time"
 )
 
@@ -18,7 +18,7 @@ type rootStruct struct {
 }
 
 func main() {
-	msgpack.EncodeWithReflect()
+	msgp.EncodeWithReflect()
 	//tools.SearchStructsInPackage("time")
 	//tools.PrintTypesInPackage("time")
 	//tools.PrintStructsInPackage("time")

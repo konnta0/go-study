@@ -1,4 +1,4 @@
-package msgpack
+package msgp
 
 import (
 	"bytes"
